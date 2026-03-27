@@ -9,12 +9,14 @@ const projects: DocProject[] = [
   {
     name: 'test-doc',
     label: 'テストドキュメント',
-    path: '/test-doc/'
+    path: '/test-doc/',
+    category: 'テスト'
   },
   {
     name: 'vscode-iris-connection',
     label: 'VS Code IRIS Connection',
-    path: '/vscode-iris-connection/'
+    path: '/vscode-iris-connection/',
+    category: 'ツール'
   }
 ]
 

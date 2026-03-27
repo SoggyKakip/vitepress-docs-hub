@@ -40,6 +40,9 @@ export function generateSidebar(
 ): SidebarConfig {
   const config: SidebarConfig = {}
 
+  // タスク 9.4: トップページ用サイドバーを追加
+  config['/'] = buildHomeSidebar(projects)
+
   for (const project of projects) {
     const projectDir = path.join(docsRoot, project.name)
 
@@ -67,6 +70,37 @@ export function generateSidebar(
   }
 
   return config
+}
+
+/**
+ * トップページ用サイドバーを生成する。
+ *
+ * - 全プロジェクトをカテゴリ別にグルーピング
+ * - カテゴリがあるプロジェクトはカテゴリ名のグループ配下に配置
+ * - カテゴリがないプロジェクトは「その他」グループに配置
+ * - 各プロジェクトは label と path（index.md へのリンク）で表示
+ */
+export function buildHomeSidebar(projects: DocProject[]): SidebarItem[] {
+  const categoryMap = new Map<string, SidebarItem[]>()
+  const categoryOrder: string[] = []
+
+  for (const project of projects) {
+    const category = project.category ?? 'その他'
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, [])
+      categoryOrder.push(category)
+    }
+    categoryMap.get(category)!.push({
+      text: project.label,
+      link: project.path,
+    })
+  }
+
+  return categoryOrder.map((category) => ({
+    text: category,
+    items: categoryMap.get(category)!,
+    collapsed: false,
+  }))
 }
 
 

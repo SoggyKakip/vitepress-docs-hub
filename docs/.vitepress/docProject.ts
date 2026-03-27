@@ -12,6 +12,8 @@ export interface DocProject {
   path: string
   /** 元リポジトリURL（参照用、省略可能） */
   repoUrl?: string
+  /** カテゴリ名（ナビドロップダウン・サイドバーグルーピング用、省略可能） */
+  category?: string
 }
 
 /** バリデーション結果 */
