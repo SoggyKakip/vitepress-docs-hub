@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "fast-check": "^4.6.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.2"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}
