@@ -1,0 +1,16 @@
+[
+  {
+    "name": "test-doc",
+    "label": "テストドキュメント",
+    "category": "テスト",
+    "description": "テストプロジェクトの技術ドキュメント",
+    "icon": "📝"
+  },
+  {
+    "name": "vscode-iris-connection",
+    "label": "VS Code IRIS Connection",
+    "category": "ツール",
+    "description": "VS Code から IRIS に接続するための拡張機能ドキュメント",
+    "icon": "🔌"
+  }
+]

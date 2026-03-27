@@ -14,6 +14,10 @@ export interface DocProject {
   repoUrl?: string
   /** カテゴリ名（ナビドロップダウン・サイドバーグルーピング用、省略可能） */
   category?: string
+  /** 説明（Feature カード用、省略可能） */
+  description?: string
+  /** アイコン（Feature カード用、省略可能） */
+  icon?: string
 }
 
 /** バリデーション結果 */

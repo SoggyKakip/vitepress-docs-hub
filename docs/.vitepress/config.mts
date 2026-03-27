@@ -1,41 +1,20 @@
 import { defineConfig } from 'vitepress'
 import { withSidebar } from 'vitepress-sidebar'
-import type { VitePressSidebarOptions } from 'vitepress-sidebar'
-import type { DocProject } from './lib/types'
-import { buildNavItems } from './lib/navBuilder'
+import { fileURLToPath } from 'node:url'
+import * as path from 'node:path'
+import { loadProjects, warnUnregisteredProjects } from './config-builder/projectLoader'
+import { buildNavItems } from './config-builder/navBuilder'
+import { buildHomeSidebar } from './config-builder/homeSidebarBuilder'
 
-// DocProject 配列: 統合するドキュメントプロジェクトの定義
-const projects: DocProject[] = [
-  {
-    name: 'test-doc',
-    label: 'テストドキュメント',
-    path: '/test-doc/',
-    category: 'テスト'
-  },
-  {
-    name: 'vscode-iris-connection',
-    label: 'VS Code IRIS Connection',
-    path: '/vscode-iris-connection/',
-    category: 'ツール'
-  }
-]
+// 1. プロジェクト定義を読み込み
+const projects = loadProjects()
 
-// トップページ用サイドバー: projects 配列からカテゴリ別に生成
-function buildHomeSidebar(projects: DocProject[]) {
-  const grouped = new Map<string, { text: string; link: string }[]>()
-  for (const p of projects) {
-    const cat = p.category ?? 'その他'
-    if (!grouped.has(cat)) grouped.set(cat, [])
-    grouped.get(cat)!.push({ text: p.label, link: p.path })
-  }
-  return [...grouped.entries()].map(([cat, items]) => ({
-    text: cat,
-    collapsed: false,
-    items,
-  }))
-}
+// 2. 未登録プロジェクトを検出して警告
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const docsRoot = path.resolve(__dirname, '..')
+warnUnregisteredProjects(docsRoot, projects)
 
-// VitePress 本体の設定
+// 3. VitePress 本体の設定
 const vitePressOptions = defineConfig({
   title: 'Docs Hub',
   description: '統合ドキュメントハブ',
@@ -51,8 +30,8 @@ const vitePressOptions = defineConfig({
   }
 })
 
-// vitepress-sidebar: 各プロジェクト固有のサイドバーを自動生成
-const sidebarOptions: VitePressSidebarOptions[] = projects.map(project => ({
+// 4. vitepress-sidebar: 各プロジェクト固有のサイドバーを自動生成
+const sidebarOptions = projects.map(project => ({
   documentRootPath: 'docs',
   scanStartPath: project.name,
   resolvePath: project.path,
@@ -63,7 +42,7 @@ const sidebarOptions: VitePressSidebarOptions[] = projects.map(project => ({
   collapsed: false,
 }))
 
-// withSidebar でプロジェクト固有サイドバーを生成し、トップページ用を追加
+// 5. 統合: プロジェクト固有サイドバー + トップページ用サイドバー
 const result = withSidebar(vitePressOptions, sidebarOptions) as any
 result.themeConfig.sidebar['/'] = buildHomeSidebar(projects)
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { buildNavItems } from '../docs/.vitepress/lib/navBuilder'
-import type { NavItem, NavItemWithChildren } from '../docs/.vitepress/lib/navBuilder'
-import type { DocProject } from '../docs/.vitepress/lib/types'
+import { buildNavItems } from '../docs/.vitepress/config-builder/navBuilder'
+import type { NavItem, NavItemWithChildren } from '../docs/.vitepress/config-builder/navBuilder'
+import type { DocProject } from '../docs/.vitepress/config-builder/types'
 
 describe('buildNavItems: カテゴリ対応ドロップダウン', () => {
   it('カテゴリ付きプロジェクトはドロップダウンにグループ化される', () => {
