@@ -40,21 +40,30 @@ export function loadProjects(): DocProject[] {
 }
 
 /**
- * docs/ 配下のフォルダを走査し、projects.json に未登録のプロジェクトがあれば警告。
+ * docs/ 配下のフォルダを走査し、projects.json に未登録のプロジェクトがあれば
+ * 警告しつつ、フォルダ名ベースの DocProject として自動追加する。
  */
-export function warnUnregisteredProjects(docsRoot: string, projects: DocProject[]): void {
-  if (!fs.existsSync(docsRoot)) return
+export function loadProjectsWithAutoDetect(docsRoot: string): DocProject[] {
+  const registered = loadProjects()
+  if (!fs.existsSync(docsRoot)) return registered
 
-  const registered = new Set(projects.map(p => p.name))
+  const registeredNames = new Set(registered.map(p => p.name))
   const dirs = fs.readdirSync(docsRoot, { withFileTypes: true })
     .filter(d => d.isDirectory() && !d.name.startsWith('.'))
     .map(d => d.name)
 
-  const unregistered = dirs.filter(d => !registered.has(d))
-  if (unregistered.length > 0) {
+  const unregistered = dirs.filter(d => !registeredNames.has(d))
+  for (const dir of unregistered) {
     console.warn(
-      `[docs-hub] 未登録プロジェクト: ${unregistered.join(', ')}` +
-      '\n  → config-data/projects.json に追加してください'
+      `[docs-hub] 未登録プロジェクト "${dir}" を自動検出しました` +
+      '\n  → config-data/projects.json に追加するとラベルやカテゴリを設定できます'
     )
+    registered.push({
+      name: dir,
+      label: dir,
+      path: `/${dir}/`,
+    })
   }
+
+  return registered
 }
