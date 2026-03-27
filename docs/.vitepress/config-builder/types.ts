@@ -2,7 +2,20 @@
  * DocProject 型定義とバリデーション
  */
 
-/** ドキュメントプロジェクトの設定 */
+/** projects.json の各プロジェクトエントリ（category は JSON 構造から導出） */
+export interface ProjectEntry {
+  name: string
+  label: string
+  description?: string
+  icon?: string
+}
+
+/** projects.json のルート構造: { カテゴリ名: ProjectEntry[] } */
+export interface ProjectsConfig {
+  [category: string]: ProjectEntry[]
+}
+
+/** ドキュメントプロジェクトの設定（内部で使用） */
 export interface DocProject {
   /** プロジェクト識別名（英数字・ハイフンのみ） */
   name: string

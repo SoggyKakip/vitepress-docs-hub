@@ -4,36 +4,38 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { DocProject } from './types'
+import type { DocProject, ProjectsConfig } from './types'
 import { validateDocProject } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROJECTS_JSON_PATH = path.resolve(__dirname, '../config-data/projects.json')
 
 /**
- * projects.json を読み込み、DocProject[] を返す。
- * バリデーションエラーがあれば console.warn で警告。
+ * projects.json（カテゴリ階層形式）を読み込み、DocProject[] を返す。
+ * カテゴリは JSON のキーから自動付与される。
  */
 export function loadProjects(): DocProject[] {
   const content = fs.readFileSync(PROJECTS_JSON_PATH, 'utf-8')
-  const raw = JSON.parse(content) as DocProject[]
+  const config = JSON.parse(content) as ProjectsConfig
 
   const projects: DocProject[] = []
-  for (const entry of raw) {
-    const project: DocProject = {
-      name: entry.name,
-      label: entry.label,
-      path: `/${entry.name}/`,
-      category: entry.category,
-      description: entry.description,
-      icon: entry.icon,
+  for (const [category, entries] of Object.entries(config)) {
+    for (const entry of entries) {
+      const project: DocProject = {
+        name: entry.name,
+        label: entry.label,
+        path: `/${entry.name}/`,
+        category,
+        description: entry.description,
+        icon: entry.icon,
+      }
+      const result = validateDocProject(project)
+      if (!result.valid) {
+        console.warn(`[docs-hub] Invalid project "${entry.name}":`, result.errors)
+        continue
+      }
+      projects.push(project)
     }
-    const result = validateDocProject(project)
-    if (!result.valid) {
-      console.warn(`[docs-hub] Invalid project "${entry.name}":`, result.errors)
-      continue
-    }
-    projects.push(project)
   }
 
   return projects
@@ -41,7 +43,7 @@ export function loadProjects(): DocProject[] {
 
 /**
  * docs/ 配下のフォルダを走査し、projects.json に未登録のプロジェクトがあれば
- * 警告しつつ、フォルダ名ベースの DocProject として自動追加する。
+ * 警告しつつ、カテゴリ「未登録」の DocProject として自動追加する。
  */
 export function loadProjectsWithAutoDetect(docsRoot: string): DocProject[] {
   const registered = loadProjects()
@@ -62,6 +64,7 @@ export function loadProjectsWithAutoDetect(docsRoot: string): DocProject[] {
       name: dir,
       label: dir,
       path: `/${dir}/`,
+      category: '未登録',
     })
   }
 
