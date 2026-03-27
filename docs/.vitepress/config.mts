@@ -3,7 +3,7 @@ import { withSidebar } from 'vitepress-sidebar'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import { loadProjectsWithAutoDetect } from './config-builder/projectLoader'
-import { buildNavItems } from './config-builder/navBuilder'
+import { buildProjectsDropdown } from './config-builder/navBuilder'
 import { buildHomeSidebar } from './config-builder/homeSidebarBuilder'
 
 // 1. プロジェクト定義を読み込み（未登録プロジェクトも自動検出）
@@ -19,7 +19,7 @@ const vitePressOptions = defineConfig({
   themeConfig: {
     nav: [
       { text: 'ホーム', link: '/' },
-      ...buildNavItems(projects)
+      buildProjectsDropdown(projects)
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
