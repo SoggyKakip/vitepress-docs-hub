@@ -1,0 +1,12 @@
+[
+  {
+    "name": "test-doc",
+    "label": "テストドキュメント",
+    "category": "テスト"
+  },
+  {
+    "name": "vscode-iris-connection",
+    "label": "VS Code IRIS Connection",
+    "category": "ツール"
+  }
+]

@@ -1,7 +1,7 @@
 /**
  * ナビゲーション生成ユーティリティ
  */
-import type { DocProject } from './docProject'
+import type { DocProject } from './types'
 
 /** フラットなナビゲーション項目 */
 export interface NavItem {

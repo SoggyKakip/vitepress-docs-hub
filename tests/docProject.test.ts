@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { validateName, validatePath } from '../docs/.vitepress/docProject'
+import { validateName, validatePath } from '../docs/.vitepress/lib/types'
 
 /**
  * Property 7: DocProject name バリデーション

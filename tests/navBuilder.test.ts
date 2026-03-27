@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { buildNavItems } from '../docs/.vitepress/navBuilder'
-import type { DocProject } from '../docs/.vitepress/docProject'
+import { buildNavItems } from '../docs/.vitepress/lib/navBuilder'
+import type { DocProject } from '../docs/.vitepress/lib/types'
 
 /**
  * 有効な DocProject を生成する arbitrary
