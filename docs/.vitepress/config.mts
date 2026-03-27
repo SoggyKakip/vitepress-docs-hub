@@ -1,8 +1,7 @@
 import { defineConfig } from 'vitepress'
-import * as path from 'node:path'
+import { withSidebar } from 'vitepress-sidebar'
 import type { DocProject } from './docProject'
 import { buildNavItems } from './navBuilder'
-import { generateSidebar } from './sidebarGenerator'
 
 // DocProject 配列: 統合するドキュメントプロジェクトの定義
 const projects: DocProject[] = [
@@ -20,24 +19,33 @@ const projects: DocProject[] = [
   }
 ]
 
-// docs/ ディレクトリ（config.mts は docs/.vitepress/ にあるため親ディレクトリ）
-const docsRoot = path.resolve(__dirname, '..')
-
-// https://vitepress.dev/reference/site-config
-export default defineConfig({
-  title: "Docs Hub",
-  description: "統合ドキュメントハブ",
+// VitePress 本体の設定
+const vitePressOptions = defineConfig({
+  title: 'Docs Hub',
+  description: '統合ドキュメントハブ',
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'ホーム', link: '/' },
       ...buildNavItems(projects)
     ],
-
-    sidebar: generateSidebar(docsRoot, projects),
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
     ]
   }
 })
+
+// vitepress-sidebar: 各プロジェクトごとにマルチサイドバーを生成
+const sidebarOptions = projects.map(project => ({
+  documentRootPath: 'docs',
+  scanStartPath: project.name,
+  resolvePath: project.path,
+  useTitleFromFrontmatter: true,
+  useTitleFromFileHeading: true,
+  useFolderTitleFromIndexFile: true,
+  sortMenusByFrontmatterOrder: true,
+  collapsed: false,
+  excludePattern: ['.git'],
+  debugPrint: false,
+}))
+
+export default withSidebar(vitePressOptions, sidebarOptions)
