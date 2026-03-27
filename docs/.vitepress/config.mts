@@ -41,6 +41,6 @@ const sidebarOptions = projects.map(project => ({
 
 // 4. 統合: プロジェクト固有サイドバー + トップページ用サイドバー
 const result = withSidebar(vitePressOptions, sidebarOptions) as any
-result.themeConfig.sidebar['/'] = buildHomeSidebar(projects)
+result.themeConfig.sidebar['/'] = buildHomeSidebar(docsRoot, projects)
 
 export default result
