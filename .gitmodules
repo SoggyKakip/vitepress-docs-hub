@@ -1,0 +1,6 @@
+[submodule "docs/test-doc"]
+	path = docs/test-doc
+	url = ../test-doc
+[submodule "docs/vscode-iris-connection"]
+	path = docs/vscode-iris-connection
+	url = ../vscode-iris-connection
