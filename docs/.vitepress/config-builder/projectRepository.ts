@@ -1,14 +1,14 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ProjectRepository } from './types'
 
 export function loadProjectRepositories(repoRoot: string): Map<string, ProjectRepository> {
-  const gitmodulesPath = path.join(repoRoot, '.gitmodules')
-  if (!fs.existsSync(gitmodulesPath)) {
+  const gitmodulesPath = join(repoRoot, '.gitmodules')
+  if (!existsSync(gitmodulesPath)) {
     return new Map()
   }
 
-  const content = fs.readFileSync(gitmodulesPath, 'utf-8')
+  const content = readFileSync(gitmodulesPath, 'utf-8')
   const entries = parseGitmodules(content)
   const origin = resolveGitOrigin(repoRoot)
   const repositories = new Map<string, ProjectRepository>()
@@ -62,12 +62,12 @@ function parseGitmodules(content: string): GitmodulesEntry[] {
 }
 
 function resolveGitOrigin(repoRoot: string): string | undefined {
-  const configPath = path.join(repoRoot, '.git', 'config')
-  if (!fs.existsSync(configPath)) {
+  const configPath = join(repoRoot, '.git', 'config')
+  if (!existsSync(configPath)) {
     return undefined
   }
 
-  const content = fs.readFileSync(configPath, 'utf-8')
+  const content = readFileSync(configPath, 'utf-8')
   const lines = content.split(/\r?\n/)
   let inOrigin = false
 

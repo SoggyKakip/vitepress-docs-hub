@@ -1,5 +1,5 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import { existsSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import type { DocProject, ProjectRepository } from './types'
 import { PROJECT_DOCS_DIR, discoverProjectDirs } from './projectDiscovery'
 import { readProjectFrontmatter, toDefaultLabel } from './projectFrontmatter'
@@ -9,13 +9,13 @@ import { validateDocProject } from './validators'
 export { PROJECT_DOCS_DIR } from './projectDiscovery'
 
 export function loadProjects(docsRoot: string): DocProject[] {
-  if (!fs.existsSync(docsRoot)) {
+  if (!existsSync(docsRoot)) {
     return []
   }
 
-  const projectsRoot = path.join(docsRoot, PROJECT_DOCS_DIR)
+  const projectsRoot = join(docsRoot, PROJECT_DOCS_DIR)
   const projectNames = discoverProjectDirs(projectsRoot)
-  const repositories = loadProjectRepositories(path.resolve(docsRoot, '..'))
+  const repositories = loadProjectRepositories(resolve(docsRoot, '..'))
   const projects = projectNames.map((projectName) =>
     buildDocProject(projectName, projectsRoot, repositories),
   )
@@ -35,7 +35,7 @@ function buildDocProject(
   projectsRoot: string,
   repositories: Map<string, ProjectRepository>,
 ): DocProject {
-  const projectDir = path.join(projectsRoot, projectName)
+  const projectDir = join(projectsRoot, projectName)
   const frontmatter = readProjectFrontmatter(projectDir)
   const submodulePath = `docs/${PROJECT_DOCS_DIR}/${projectName}`
 

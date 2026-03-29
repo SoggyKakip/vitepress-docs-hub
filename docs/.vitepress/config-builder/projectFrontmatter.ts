@@ -1,16 +1,16 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { ProjectFrontmatter } from './types'
 
 export function readProjectFrontmatter(projectDir: string): ProjectFrontmatter {
-  const indexPath = path.join(projectDir, 'index.md')
-  if (!fs.existsSync(indexPath)) {
+  const indexPath = join(projectDir, 'index.md')
+  if (!existsSync(indexPath)) {
     return {}
   }
 
   try {
-    const content = fs.readFileSync(indexPath, 'utf-8')
+    const content = readFileSync(indexPath, 'utf-8')
     const { data } = matter(content)
     return {
       title: asNonEmptyString(data.title),
