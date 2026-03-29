@@ -4,3 +4,6 @@
 [submodule "docs/project-docs/proj-sample-docs-d"]
 	path = docs/project-docs/proj-sample-docs-d
 	url = https://github.com/SoggyKakip/proj-sample-docs-d.git
+[submodule "docs/project-docs/intersystems-server-manager-docs"]
+	path = docs/project-docs/intersystems-server-manager-docs
+	url = https://github.com/SoggyKakip/intersystems-server-manager-docs.git
