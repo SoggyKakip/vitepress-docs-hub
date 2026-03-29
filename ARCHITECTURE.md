@@ -15,13 +15,11 @@
 ```text
 docs/.vitepress/
 ├─ config.mts                      # エントリポイント。最終的な VitePress 設定を組み立てる
-├─ config-data/
-│  └─ projects.json                # プロジェクト定義データ
 └─ config-builder/
    ├─ types.ts                     # ドメイン型 (DocProject, ProjectsConfig, ...)
-   ├─ validators.ts                # 構造/値バリデーション + パーサ
-   ├─ projectLoader.ts             # projects.json 読み込み + 未登録プロジェクト検出
-   ├─ navBuilder.ts                # グローバルナビ(プロジェクトドロップダウン)生成
+   ├─ validators.ts                # 値バリデーション
+   ├─ projectLoader.ts             # project-docs 自動検出 + frontmatter 読み込み + .gitmodules URL解決
+   ├─ navBuilder.ts                # グローバルナビ(プロジェクト/Repositories)生成
    └─ homeSidebarBuilder.ts        # トップページ用サイドバー生成
 ```
 
@@ -41,20 +39,19 @@ docs/.vitepress/
 
 ### `validators.ts`
 
-- `projects.json` の構造検証 (`parseProjectsConfig`)
 - `DocProject` 値検証 (`validateName`, `validatePath`, `validateDocProject`)
-- パース結果を `ParseResult<T>` で返す
 
 ### `projectLoader.ts`
 
-- `projects.json` を読み込み、`validators.ts` で正規化
-- カテゴリキーを `DocProject.category` に反映
-- `docs/project-docs/` 直下ディレクトリとの差分を取り、未登録プロジェクトを補完
+- `docs/project-docs/` 直下を走査し、プロジェクト一覧を生成
+- `index.md` frontmatter (`title/category/description/icon`) を任意で読み込む
+- `.gitmodules` と親リポジトリ origin から `repoUrl` を解決する
 
 ### `navBuilder.ts`
 
 - `DocProject[]` から `DefaultTheme.NavItemWithChildren` を生成
-- カテゴリあり/なしを判別して dropdown を構築
+- `プロジェクト` dropdown を構築
+- `repoUrl` がある場合のみ `Repositories` dropdown を構築
 
 ### `homeSidebarBuilder.ts`
 
@@ -66,16 +63,18 @@ docs/.vitepress/
 
 ```mermaid
 flowchart LR
-  A[projects.json] --> B[parseProjectsConfig]
-  B --> C[validateDocProject]
-  C --> D[DocProject list]
-  E[docs/project-docs directory scan] --> F[unregistered detection]
-  D --> F
+  A[docs/project-docs scan] --> B[frontmatter read]
+  C[.gitmodules parse] --> D[repoUrl resolve]
+  B --> E[DocProject list]
+  D --> E
+  E --> F[validateDocProject]
   F --> G[loadProjectsWithAutoDetect result]
   G --> H[buildProjectsDropdown]
+  G --> H2[buildRepositoriesDropdown]
   G --> I[buildHomeSidebar]
   G --> J[withSidebar options]
   H --> K[config.mts]
+  H2 --> K
   I --> K
   J --> K
   K --> L[VitePress runtime config]
@@ -85,8 +84,8 @@ flowchart LR
 
 ### 入力境界
 
-- `projects.json` は外部入力として扱い、`unknown` から検証して型へ変換する
-- ファイルシステム走査結果は未登録補完ロジックで吸収する
+- `docs/project-docs/` と各 `index.md` frontmatter を外部入力として扱う
+- `.gitmodules` を解析して repo URL を補完する
 
 ### 型境界
 
@@ -108,16 +107,17 @@ flowchart LR
 ## 7. 設計上のトレードオフ
 
 - メリット
-  - 設定追加の運用負荷が低い
+  - 設定ファイルなしで追加でき、運用負荷が低い
   - モジュール分割で保守しやすい
   - 型境界と実行時境界を明示できる
 
 - デメリット
-  - `docs/project-docs/` 直下ディレクトリが自動検出対象のため、意図しない露出が起こり得る
+  - frontmatter 任意運用のため、表示ゆれが起こり得る
+  - `.gitmodules` / origin 形式によっては repo URL 解決が不完全な場合がある
   - ログ警告ベースのため、CI で厳密に失敗させたい運用には追加実装が必要
 
 ## 8. 将来拡張ポイント
 
 - CI での strict validation モード（警告ではなく fail）
-- `projects.json` に `repoUrl` などメタデータを拡張し、トップページカードを自動生成
+- frontmatter 必須ルールの導入（CI lint）
 - `tests` 実行スクリプトを `package.json` に追加し、標準開発フローへ統合

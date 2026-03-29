@@ -1,7 +1,7 @@
 # VitePress Docs Hub
 
 複数プロジェクトのドキュメントを 1 つの VitePress サイトに集約するためのドキュメントハブです。  
-`projects.json` を中心に、ナビゲーションとサイドバーを自動構築します。
+`project-docs` 配下を自動検出し、ナビゲーションとサイドバーを構築します。
 
 ## 目次
 
@@ -23,12 +23,11 @@
 
 ## 主な機能
 
-- `docs/.vitepress/config-data/projects.json` からプロジェクト定義を読み込み
+- `docs/project-docs/` 配下のプロジェクトを自動検出
 - カテゴリ付きの「プロジェクト」ドロップダウンを自動生成
+- `.gitmodules` からリポジトリURLを解決し、「Repositories」ドロップダウンを自動生成
 - `vitepress-sidebar` によるプロジェクト別サイドバー自動生成
 - トップページ向けサイドバー（`docs/` 直下ページ + カテゴリ別プロジェクト一覧）を自動生成
-- `projects.json` の実行時バリデーション（不正データを検出）
-- 未登録ディレクトリの自動検出（警告付き、`未登録` カテゴリで追加）
 
 ## 技術スタック
 
@@ -99,8 +98,7 @@ git submodule add <doc-repo-url> docs/project-docs/<project-name>
 git submodule update --init --recursive
 ```
 
-3. `docs/.vitepress/config-data/projects.json` にエントリを追加する
-4. `npm run docs:dev` でナビゲーションとサイドバーを確認する
+3. `npm run docs:dev` でナビゲーションとサイドバーを確認する
 
 ### 更新手順（既存 submodule）
 
@@ -117,31 +115,25 @@ git submodule deinit -f docs/project-docs/<project-name>
 git rm docs/project-docs/<project-name>
 ```
 
-### `projects.json` の例
+### frontmatter での表示制御（任意）
 
-```json
-{
-  "ツール": [
-    {
-      "name": "my-project",
-      "label": "My Project",
-      "description": "プロジェクト説明",
-      "icon": "🛠️"
-    }
-  ]
-}
+`docs/project-docs/<project-name>/index.md` の frontmatter で表示情報を指定できます。  
+未指定でもエラーにはならず、ディレクトリ名から自動補完されます。
+
+```md
+---
+title: My Project
+category: ツール
+description: プロジェクト説明
+icon: 🛠️
+---
 ```
-
-### 命名ルール
-
-- `name` は英数字とハイフンのみ（`[a-zA-Z0-9-]+`）
-- 各プロジェクト URL は `/project-docs/<name>/` 形式で生成
 
 ### 注意点
 
 - `docs/project-docs/` 直下に新しいディレクトリを追加すると、未登録であっても自動検出されてナビゲーションに出ます
-- 意図した表示名・カテゴリにするため、必ず `projects.json` に登録してください
-- `projects.json` に存在しても submodule が未取得だと、内容は表示されません
+- `index.md` の frontmatter から `title/category/description/icon` を読み取ります（無くても可）
+- submodule の URL が `.gitmodules` に設定されていると、上部ナビの `Repositories` から各リポジトリへ移動できます
 
 ## 開発者向け情報
 
@@ -152,7 +144,6 @@ git rm docs/project-docs/<project-name>
 ├─ docs/
 │  ├─ .vitepress/
 │  │  ├─ config.mts
-│  │  ├─ config-data/projects.json
 │  │  └─ config-builder/
 │  │     ├─ types.ts
 │  │     ├─ validators.ts

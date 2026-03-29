@@ -63,3 +63,29 @@ export function buildProjectsDropdown(projects: DocProject[]): DefaultTheme.NavI
     items: groups,
   }
 }
+
+export function buildRepositoriesDropdown(
+  projects: DocProject[],
+): DefaultTheme.NavItemWithChildren | undefined {
+  const items: DefaultTheme.NavItemWithLink[] = projects
+    .filter(hasRepoUrl)
+    .map((project) => ({
+      text: project.label,
+      link: project.repoUrl,
+      target: '_blank',
+      rel: 'noreferrer',
+    }))
+
+  if (items.length === 0) {
+    return undefined
+  }
+
+  return {
+    text: 'Repositories',
+    items,
+  }
+}
+
+function hasRepoUrl(project: DocProject): project is DocProject & { repoUrl: string } {
+  return typeof project.repoUrl === 'string' && project.repoUrl.length > 0
+}

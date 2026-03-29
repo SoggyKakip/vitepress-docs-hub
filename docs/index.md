@@ -1,25 +1,21 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "Docs Hub"
   text: "統合ドキュメントハブ"
-  tagline: My great project tagline
+  tagline: "複数プロジェクトの知見を、ひとつの入口で素早く見つける。"
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: このサイトについて
+      link: /about
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: 横断しやすいナビゲーション
+    details: プロジェクトやカテゴリをまたいで、必要な情報へ最短で到達できます。
+  - title: 独立リポジトリ運用に対応
+    details: 各ドキュメントは分離管理しつつ、Hub側で一貫した閲覧体験を提供します。
+  - title: 継続的に保守しやすい構成
+    details: 定義ファイルと自動生成を組み合わせ、追加・更新・運用の負荷を抑えます。
 ---
 
