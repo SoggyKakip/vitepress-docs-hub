@@ -1,7 +1,7 @@
 param(
   [string]$ProjectName,
   [string]$HubRepository = "SoggyKakip/vitepress-docs-hub",
-  [string]$TargetRoot = "."
+  [string]$TargetRoot = ".."
 )
 
 Set-StrictMode -Version Latest
