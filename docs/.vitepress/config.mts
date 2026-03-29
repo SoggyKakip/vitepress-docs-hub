@@ -3,14 +3,13 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig, type DefaultTheme } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar'
 
-import { buildHomeSidebar } from './config-builder/homeSidebarBuilder'
+import { buildHomeSidebar } from './config-builder/rootSidebarBuilder'
 import { buildProjectsDropdown, buildRepositoriesDropdown } from './config-builder/navBuilder'
 import { loadProjects, PROJECT_DOCS_DIR } from './config-builder/projectCatalog'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const docsRoot = resolve(__dirname, '..')
 const projects = loadProjects(docsRoot)
-const repositoriesDropdown = buildRepositoriesDropdown(projects)
 
 const vitePressOptions = defineConfig({
   title: 'Docs Hub',

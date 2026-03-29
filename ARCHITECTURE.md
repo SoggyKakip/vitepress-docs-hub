@@ -23,7 +23,7 @@ docs/.vitepress/
    ├─ projectFrontmatter.ts        # index.md frontmatter 読み込み
    ├─ projectRepository.ts         # .gitmodules 由来の repo URL 解決
    ├─ navBuilder.ts                # グローバルナビ(プロジェクト/Repositories)生成
-   └─ homeSidebarBuilder.ts        # トップページ用サイドバー生成
+   └─ rootSidebarBuilder.ts        # トップページ用サイドバー生成
 ```
 
 ## 3. モジュール責務
@@ -56,7 +56,7 @@ docs/.vitepress/
 - `プロジェクト` dropdown を構築
 - `repoUrl` がある場合のみ `Repositories` dropdown を構築
 
-### `homeSidebarBuilder.ts`
+### `rootSidebarBuilder.ts`
 
 - `docs/` 直下 `.md` を走査しトップページ項目を生成
 - frontmatter の `title` を優先採用

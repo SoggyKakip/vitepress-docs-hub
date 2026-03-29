@@ -152,7 +152,7 @@ icon: 🛠️
 │  │     ├─ projectFrontmatter.ts
 │  │     ├─ projectRepository.ts
 │  │     ├─ navBuilder.ts
-│  │     └─ homeSidebarBuilder.ts
+│  │     └─ rootSidebarBuilder.ts
 │  └─ project-docs/
 │     └─ <project-name>/
 └─ tests/
