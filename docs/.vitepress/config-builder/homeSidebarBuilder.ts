@@ -1,65 +1,78 @@
-/**
- * トップページ用サイドバー生成
- * - docs/ 直下の .md ファイル（トップ層ページ）
- * - カテゴリ別プロジェクト一覧
- */
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { DefaultTheme } from 'vitepress'
 import type { DocProject } from './types'
 
 type SidebarItem = DefaultTheme.SidebarItem
 
-/**
- * docs/ 直下の .md ファイル + プロジェクト一覧からサイドバーを生成する。
- */
-export function buildHomeSidebar(docsRoot: string, projects: DocProject[]): SidebarItem[] {
-  const topPages = scanTopPages(docsRoot)
-  const projectGroups = groupByCategory(projects)
-  return [...topPages, ...projectGroups]
+type ProjectLink = {
+  text: string
+  link: string
 }
 
-/**
- * docs/ 直下の .md ファイルを走査してサイドバー項目を生成する。
- * index.md は除外。frontmatter の title があればそれを使用。
- */
+const UNCATEGORIZED_LABEL = 'カテゴリーなし'
+
+export function buildHomeSidebar(docsRoot: string, projects: DocProject[]): SidebarItem[] {
+  return [...scanTopPages(docsRoot), ...groupByCategory(projects)]
+}
+
 function scanTopPages(docsRoot: string): SidebarItem[] {
-  if (!fs.existsSync(docsRoot)) return []
+  if (!existsSync(docsRoot)) {
+    return []
+  }
 
-  return fs.readdirSync(docsRoot)
-    .filter(f => f.endsWith('.md') && f !== 'index.md')
+  return readdirSync(docsRoot)
+    .filter((fileName) => fileName.endsWith('.md') && fileName !== 'index.md')
     .sort((a, b) => a.localeCompare(b))
-    .map(f => {
-      const filePath = path.join(docsRoot, f)
-      const stem = f.replace(/\.md$/, '')
-      let text = stem.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-
-      try {
-        const content = fs.readFileSync(filePath, 'utf-8')
-        const { data } = matter(content)
-        if (typeof data.title === 'string' && data.title.length > 0) {
-          text = data.title
-        }
-      } catch { /* frontmatter 読み取り失敗時はファイル名を使用 */ }
-
-      return { text, link: `/${stem}` }
+    .map((fileName) => {
+      const stem = fileName.replace(/\.md$/, '')
+      const filePath = join(docsRoot, fileName)
+      const title = readTitleFromFrontmatter(filePath) ?? toTitleFromFileName(stem)
+      return { text: title, link: `/${stem}` }
     })
 }
 
-/**
- * projects 配列からカテゴリ別にグルーピングしたサイドバーを生成する。
- */
-function groupByCategory(projects: DocProject[]): SidebarItem[] {
-  const grouped = new Map<string, { text: string; link: string }[]>()
-  for (const p of projects) {
-    const cat = p.category ?? 'その他'
-    if (!grouped.has(cat)) grouped.set(cat, [])
-    grouped.get(cat)!.push({ text: p.label, link: p.path })
+function readTitleFromFrontmatter(filePath: string): string | undefined {
+  try {
+    const content = readFileSync(filePath, 'utf-8')
+    const { data } = matter(content)
+    if (typeof data.title !== 'string') {
+      return undefined
+    }
+    const title = data.title.trim()
+    return title.length > 0 ? title : undefined
+  } catch {
+    return undefined
   }
-  return [...grouped.entries()].map(([cat, items]) => ({
-    text: cat,
+}
+
+function groupByCategory(projects: DocProject[]): SidebarItem[] {
+  const groups: Array<{ text: string; items: ProjectLink[] }> = []
+
+  for (const project of projects) {
+    const category = project.category?.trim() || UNCATEGORIZED_LABEL
+    const link: ProjectLink = { text: project.label, link: project.path }
+
+    const existing = groups.find((group) => group.text === category)
+    if (existing) {
+      existing.items.push(link)
+      continue
+    }
+
+    groups.push({ text: category, items: [link] })
+  }
+
+  return groups.map((group) => ({
+    text: group.text,
     collapsed: false,
-    items,
+    items: group.items,
   }))
 }
+
+function toTitleFromFileName(stem: string): string {
+  return stem
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
