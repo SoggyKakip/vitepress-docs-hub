@@ -22,8 +22,14 @@ jobs:
         shell: bash
         env:
           SUBMODULE_PATH: ${{ github.event.client_payload.submodule_path }}
+          SUBMODULE_READ_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN }}
         run: |
           set -euo pipefail
+
+          if [[ -z "${SUBMODULE_READ_TOKEN:-}" ]]; then
+            echo "SUBMODULE_READ_TOKEN is required for private submodule access" >&2
+            exit 1
+          fi
 
           if [[ -z "${SUBMODULE_PATH:-}" ]]; then
             echo "submodule_path is required in repository_dispatch payload" >&2
@@ -40,6 +46,7 @@ jobs:
             exit 1
           fi
 
+          git config --global url."https://x-access-token:${SUBMODULE_READ_TOKEN}@github.com/".insteadOf "https://github.com/"
           git submodule sync -- "$SUBMODULE_PATH"
           git submodule update --init --remote -- "$SUBMODULE_PATH"
 

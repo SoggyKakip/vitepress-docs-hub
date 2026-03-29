@@ -21,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
           submodules: recursive
 
       - name: Setup Node.js
