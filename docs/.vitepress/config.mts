@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitepress'
+import type { DefaultTheme } from 'vitepress'
 import { withSidebar } from 'vitepress-sidebar'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
-import { loadProjectsWithAutoDetect } from './config-builder/projectLoader'
+import { loadProjectsWithAutoDetect, PROJECT_DOCS_DIR } from './config-builder/projectLoader'
 import { buildProjectsDropdown } from './config-builder/navBuilder'
 import { buildHomeSidebar } from './config-builder/homeSidebarBuilder'
 
@@ -30,7 +31,7 @@ const vitePressOptions = defineConfig({
 // 3. vitepress-sidebar: 各プロジェクト固有のサイドバーを自動生成
 const sidebarOptions = projects.map(project => ({
   documentRootPath: 'docs',
-  scanStartPath: project.name,
+  scanStartPath: `${PROJECT_DOCS_DIR}/${project.name}`,
   resolvePath: project.path,
   useTitleFromFrontmatter: true,
   useTitleFromFileHeading: true,
@@ -40,7 +41,30 @@ const sidebarOptions = projects.map(project => ({
 }))
 
 // 4. 統合: プロジェクト固有サイドバー + トップページ用サイドバー
-const result = withSidebar(vitePressOptions, sidebarOptions) as any
-result.themeConfig.sidebar['/'] = buildHomeSidebar(docsRoot, projects)
+const configWithProjectSidebars = withSidebar(
+  vitePressOptions,
+  sidebarOptions,
+) as VitePressConfig
+
+const result: VitePressConfig = {
+  ...configWithProjectSidebars,
+  themeConfig: {
+    ...(configWithProjectSidebars.themeConfig ?? {}),
+    sidebar: {
+      ...toSidebarMap(configWithProjectSidebars.themeConfig?.sidebar),
+      '/': buildHomeSidebar(docsRoot, projects),
+    },
+  },
+}
 
 export default result
+
+type VitePressConfig = ReturnType<typeof defineConfig>
+type SidebarMap = Record<string, DefaultTheme.SidebarItem[]>
+
+function toSidebarMap(sidebar: DefaultTheme.Config['sidebar']): SidebarMap {
+  if (!sidebar || Array.isArray(sidebar)) {
+    return {}
+  }
+  return sidebar
+}

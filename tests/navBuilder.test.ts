@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
+import type { DefaultTheme } from 'vitepress'
 import { buildProjectsDropdown } from '../docs/.vitepress/config-builder/navBuilder'
 import type { DocProject } from '../docs/.vitepress/config-builder/types'
 
@@ -46,10 +47,7 @@ describe('buildProjectsDropdown', () => {
         fc.array(docProjectArb, { minLength: 1, maxLength: 20 }),
         (projects) => {
           const result = buildProjectsDropdown(projects)
-          // Flatten all links from groups
-          const allLinks = result.items.flatMap((group: any) =>
-            group.items ? group.items.map((i: any) => i.link) : [group.link]
-          )
+          const allLinks = collectDropdownLinks(result)
           for (const p of projects) {
             expect(allLinks).toContain(p.path)
           }
@@ -73,7 +71,46 @@ describe('buildProjectsDropdown', () => {
       { name: 'a', label: 'A', path: '/a/' },
     ]
     const result = buildProjectsDropdown(projects)
-    expect(result.items[0]).not.toHaveProperty('text')
-    expect((result.items[0] as any).items[0].link).toBe('/a/')
+    const firstGroup = result.items[0]
+    expect(firstGroup).not.toHaveProperty('text')
+    expect(hasNestedItems(firstGroup)).toBe(true)
+    if (!hasNestedItems(firstGroup)) {
+      throw new Error('Expected uncategorized group to contain nested items.')
+    }
+    const firstItem = firstGroup.items[0]
+    expect(hasLink(firstItem)).toBe(true)
+    if (!hasLink(firstItem)) {
+      throw new Error('Expected first uncategorized item to have a link.')
+    }
+    expect(firstItem.link).toBe('/a/')
   })
 })
+
+type NavNodeLike = {
+  link?: string
+  items?: NavNodeLike[]
+}
+
+function collectDropdownLinks(dropdown: DefaultTheme.NavItemWithChildren): string[] {
+  return dropdown.items.flatMap((item) => collectLinksFromNode(item as NavNodeLike))
+}
+
+function collectLinksFromNode(node: NavNodeLike): string[] {
+  const ownLink = node.link ? [node.link] : []
+  if (!node.items) {
+    return ownLink
+  }
+  return [...ownLink, ...node.items.flatMap(collectLinksFromNode)]
+}
+
+function hasNestedItems(
+  item: DefaultTheme.NavItemWithLink | DefaultTheme.NavItemChildren | DefaultTheme.NavItemWithChildren,
+): item is DefaultTheme.NavItemChildren | DefaultTheme.NavItemWithChildren {
+  return 'items' in item && Array.isArray(item.items)
+}
+
+function hasLink(
+  item: DefaultTheme.NavItemWithLink | DefaultTheme.NavItemChildren | DefaultTheme.NavItemWithChildren,
+): item is DefaultTheme.NavItemWithLink {
+  return 'link' in item && typeof item.link === 'string'
+}

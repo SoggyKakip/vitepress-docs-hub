@@ -6,14 +6,10 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import matter from 'gray-matter'
+import type { DefaultTheme } from 'vitepress'
 import type { DocProject } from './types'
 
-interface SidebarItem {
-  text: string
-  link?: string
-  items?: SidebarItem[]
-  collapsed?: boolean
-}
+type SidebarItem = DefaultTheme.SidebarItem
 
 /**
  * docs/ 直下の .md ファイル + プロジェクト一覧からサイドバーを生成する。
