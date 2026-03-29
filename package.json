@@ -7,11 +7,9 @@
   },
   "devDependencies": {
     "fast-check": "^4.6.0",
+    "gray-matter": "^4.0.3",
     "vitepress": "^1.6.4",
     "vitepress-sidebar": "^1.33.1",
     "vitest": "^4.1.2"
-  },
-  "dependencies": {
-    "gray-matter": "^4.0.3"
   }
 }
