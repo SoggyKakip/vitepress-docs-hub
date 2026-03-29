@@ -29,6 +29,7 @@ function scanTopPages(docsRoot: string): SidebarItem[] {
 
   return fs.readdirSync(docsRoot)
     .filter(f => f.endsWith('.md') && f !== 'index.md')
+    .sort((a, b) => a.localeCompare(b))
     .map(f => {
       const filePath = path.join(docsRoot, f)
       const stem = f.replace(/\.md$/, '')

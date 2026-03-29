@@ -17,7 +17,9 @@ export function readProjectFrontmatter(projectDir: string): ProjectFrontmatter {
       category: asNonEmptyString(data.category),
       description: asNonEmptyString(data.description),
     }
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.warn(`[docs-hub] Failed to read frontmatter: ${indexPath} (${message})`)
     return {}
   }
 }

@@ -10,4 +10,5 @@ export function discoverProjectDirs(projectsRoot: string): string[] {
   return fs.readdirSync(projectsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
     .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b))
 }
