@@ -16,9 +16,12 @@
 docs/.vitepress/
 ├─ config.mts                      # エントリポイント。最終的な VitePress 設定を組み立てる
 └─ config-builder/
-   ├─ types.ts                     # ドメイン型 (DocProject, ProjectsConfig, ...)
+   ├─ types.ts                     # ドメイン型 (DocProject, ProjectFrontmatter, ProjectRepository)
    ├─ validators.ts                # 値バリデーション
-   ├─ projectLoader.ts             # project-docs 自動検出 + frontmatter 読み込み + .gitmodules URL解決
+   ├─ projectCatalog.ts            # プロジェクト一覧のオーケストレーション
+   ├─ projectDiscovery.ts          # project-docs 配下のディレクトリ検出
+   ├─ projectFrontmatter.ts        # index.md frontmatter 読み込み
+   ├─ projectRepository.ts         # .gitmodules 由来の repo URL 解決
    ├─ navBuilder.ts                # グローバルナビ(プロジェクト/Repositories)生成
    └─ homeSidebarBuilder.ts        # トップページ用サイドバー生成
 ```
@@ -34,14 +37,14 @@ docs/.vitepress/
 
 ### `types.ts`
 
-- `DocProject`, `ProjectEntry`, `ProjectsConfig` などの型を提供
+- `DocProject`, `ProjectFrontmatter`, `ProjectRepository` などの型を提供
 - バリデーションロジックは持たない
 
 ### `validators.ts`
 
 - `DocProject` 値検証 (`validateName`, `validatePath`, `validateDocProject`)
 
-### `projectLoader.ts`
+### `projectCatalog.ts`
 
 - `docs/project-docs/` 直下を走査し、プロジェクト一覧を生成
 - `index.md` frontmatter (`title/category/description/icon`) を任意で読み込む

@@ -147,7 +147,10 @@ icon: 🛠️
 │  │  └─ config-builder/
 │  │     ├─ types.ts
 │  │     ├─ validators.ts
-│  │     ├─ projectLoader.ts
+│  │     ├─ projectCatalog.ts
+│  │     ├─ projectDiscovery.ts
+│  │     ├─ projectFrontmatter.ts
+│  │     ├─ projectRepository.ts
 │  │     ├─ navBuilder.ts
 │  │     └─ homeSidebarBuilder.ts
 │  └─ project-docs/
