@@ -1,3 +1,6 @@
 [submodule "docs/project-docs/proj-root-docs-a"]
 	path = docs/project-docs/proj-root-docs-a
 	url = https://github.com/SoggyKakip/proj-root-docs-a.git
+[submodule "docs/project-docs/proj-sample-docs-d"]
+	path = docs/project-docs/proj-sample-docs-d
+	url = https://github.com/SoggyKakip/proj-sample-docs-d.git
