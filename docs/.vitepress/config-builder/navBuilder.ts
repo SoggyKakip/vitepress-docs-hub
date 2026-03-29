@@ -1,91 +1,55 @@
-/**
- * ナビゲーション生成ユーティリティ
- *
- * VitePress DefaultTheme の NavItem 型に準拠:
- * - NavItemWithLink: { text, link }
- * - NavItemChildren: { text?, items: NavItemWithLink[] } ← カテゴリ見出し付きグループ
- * - NavItemWithChildren: { text?, items: (NavItemChildren | NavItemWithLink)[] } ← ドロップダウン
- */
-import type { DefaultTheme } from 'vitepress'
-import type { DocProject } from './types'
+import type { DefaultTheme } from "vitepress";
+import type { DocProject } from "./types";
 
-/**
- * DocProject 配列から「プロジェクト」ドロップダウンを生成する。
- *
- * 出力形式:
- * {
- *   text: 'プロジェクト',
- *   items: [
- *     { text: 'カテゴリA', items: [{ text: 'プロジェクト1', link: '...' }] },
- *     { text: 'カテゴリB', items: [{ text: 'プロジェクト2', link: '...' }] },
- *   ]
- * }
- */
-export function buildProjectsDropdown(projects: DocProject[]): DefaultTheme.NavItemWithChildren {
-  const groups: DefaultTheme.NavItemChildren[] = []
-  const categoryMap = new Map<string, DefaultTheme.NavItemWithLink[]>()
-  const categoryOrder: string[] = []
-  const uncategorized: DefaultTheme.NavItemWithLink[] = []
+const PROJECTS_LABEL = "プロジェクト";
+const UNCATEGORIZED_LABEL = "カテゴリーなし";
+
+export function buildProjectsDropdown(
+  projects: DocProject[],
+): DefaultTheme.NavItemWithChildren {
+  const groups: DefaultTheme.NavItemChildren[] = [];
 
   for (const project of projects) {
+    const category: string = project.category?.trim() || UNCATEGORIZED_LABEL;
     const link: DefaultTheme.NavItemWithLink = {
       text: project.label,
       link: project.path,
-    }
-    if (project.category) {
-      if (!categoryMap.has(project.category)) {
-        categoryMap.set(project.category, [])
-        categoryOrder.push(project.category)
-      }
-      categoryMap.get(project.category)!.push(link)
+    };
+
+    const group = groups.find((g) => g.text === category);
+    if (group) {
+      group.items.push(link);
     } else {
-      uncategorized.push(link)
+      groups.push({ text: category, items: [link] });
     }
-  }
-
-  // カテゴリ付きグループ
-  for (const category of categoryOrder) {
-    groups.push({
-      text: category,
-      items: categoryMap.get(category)!,
-    })
-  }
-
-  // カテゴリなしプロジェクト
-  if (uncategorized.length > 0) {
-    groups.push({
-      items: uncategorized,
-    })
   }
 
   return {
-    text: 'プロジェクト',
+    text: PROJECTS_LABEL,
     items: groups,
-  }
+  };
 }
 
 export function buildRepositoriesDropdown(
   projects: DocProject[],
-): DefaultTheme.NavItemWithChildren | undefined {
+): DefaultTheme.NavItemWithChildren {
   const items: DefaultTheme.NavItemWithLink[] = projects
     .filter(hasRepoUrl)
     .map((project) => ({
       text: project.label,
       link: project.repoUrl,
-      target: '_blank',
-      rel: 'noreferrer',
-    }))
-
-  if (items.length === 0) {
-    return undefined
-  }
+      target: "_blank",
+      rel: "noreferrer",
+    }));
 
   return {
-    text: 'Repositories',
-    items,
-  }
+    text: "Repositories",
+    items: items,
+  };
 }
 
-function hasRepoUrl(project: DocProject): project is DocProject & { repoUrl: string } {
-  return typeof project.repoUrl === 'string' && project.repoUrl.length > 0
+function hasRepoUrl(
+  project: DocProject,
+): project is DocProject & { repoUrl: string } {
+  return typeof project.repoUrl === "string" && project.repoUrl.length > 0;
 }

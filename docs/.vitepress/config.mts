@@ -20,7 +20,7 @@ const vitePressOptions = defineConfig({
     nav: [
       { text: 'ホーム', link: '/' },
       buildProjectsDropdown(projects),
-      ...(repositoriesDropdown ? [repositoriesDropdown] : []),
+      buildRepositoriesDropdown(projects),
     ],
     socialLinks: [{ icon: 'github', link: 'https://github.com/vuejs/vitepress' }],
   },
