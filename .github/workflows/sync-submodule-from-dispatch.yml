@@ -1,0 +1,75 @@
+name: Sync Submodule From Dispatch
+
+on:
+  repository_dispatch:
+    types: [docs-updated]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: false
+
+      - name: Validate payload and sync submodule
+        id: sync
+        shell: bash
+        env:
+          SUBMODULE_PATH: ${{ github.event.client_payload.submodule_path }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${SUBMODULE_PATH:-}" ]]; then
+            echo "submodule_path is required in repository_dispatch payload" >&2
+            exit 1
+          fi
+
+          if [[ "$SUBMODULE_PATH" != docs/project-docs/* ]]; then
+            echo "submodule_path must start with docs/project-docs/: $SUBMODULE_PATH" >&2
+            exit 1
+          fi
+
+          if [[ ! -e "$SUBMODULE_PATH" ]]; then
+            echo "submodule path does not exist in hub repo: $SUBMODULE_PATH" >&2
+            exit 1
+          fi
+
+          git submodule sync -- "$SUBMODULE_PATH"
+          git submodule update --init --remote -- "$SUBMODULE_PATH"
+
+          if git diff --quiet -- "$SUBMODULE_PATH"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          submodule_sha=$(git rev-parse "HEAD:$SUBMODULE_PATH")
+          echo "submodule_sha=$submodule_sha" >> "$GITHUB_OUTPUT"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/sync-${{ github.event.client_payload.source_repo_name }}-${{ github.run_id }}
+          commit-message: >-
+            chore(submodule): sync ${{ github.event.client_payload.source_repo_name }}
+            to ${{ steps.sync.outputs.submodule_sha }}
+          title: >-
+            chore(submodule): sync ${{ github.event.client_payload.source_repo_name }}
+          body: |
+            Triggered by `${{ github.event.client_payload.source_repo }}` on push.
+
+            - submodule path: `${{ github.event.client_payload.submodule_path }}`
+            - source ref: `${{ github.event.client_payload.source_ref }}`
+            - source sha: `${{ github.event.client_payload.source_sha }}`
+            - synced submodule sha: `${{ steps.sync.outputs.submodule_sha }}`
+          labels: |
+            automation
+            submodule
+          delete-branch: true
